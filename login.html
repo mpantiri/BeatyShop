@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+<main>
+    <div class="login-container">
+        <h1>Log in</h1>
+        <form id="LoginForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Type your username" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Type your password" required>
+
+            <button type="submit">Log in</button>
+        </form>
+
+        <p id="message"></p>
+        <p><a href="index.html">Home</a></p>
+        <p><a href="signup.html">Create account</a></p>
+    </div>
+</main>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabaseUrl = "https://rdlrcwbmitqeakmnhqfg.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkbHJjd2JtaXRxZWFrbW5ocWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMTc2MDcsImV4cCI6MjA3Mzg5MzYwN30.4n4f_fr-tBPNGmcqJ92w2OpdNEJtThOc1vMFGaRFzoc";
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const form = document.getElementById("LoginForm");
+const message = document.getElementById("message");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    try {
+        
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('username', username)
+            .eq('password', password)
+            .single();
+
+        if(error || !user) {
+            message.style.color = "red";
+            message.textContent = "❌ Wrong username or password!";
+            return;
+        }
+
+    
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("username", user.username);
+
+        message.style.color = "green";
+        message.textContent = "✅ Successful connection!";
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1200);
+
+    } catch (err) {
+        console.error(err);
+        message.style.color = "red";
+        message.textContent = "❌ Please try again";
+    }
+});
+</script>
+</body>
+</html>

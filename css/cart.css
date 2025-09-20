@@ -1,0 +1,56 @@
+.cart-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px; /* απόσταση ανάμεσα σε εικόνα και κείμενο */
+    display: flex;
+     align-items: center; 
+     margin-bottom: 15px; 
+    
+}
+
+.cart-item img {
+    width: 80px;   /* πλάτος εικόνας */
+    height: 80px;  /* ύψος εικόνας */
+    object-fit: cover; /* κρατάει αναλογία και κόβει περίσσεια */
+    border-radius: 5px; /* προαιρετικό, για ωραία γωνία */
+}
+
+.cart-item p {
+    margin: 0; /* αφαιρούμε περιθώρια για να φαίνεται πιο compact */
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: rgba(188, 131, 200, 0.9);
+    padding: 15px 30px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+
+header nav a {
+    display: flex;
+    align-items: center;
+    gap:10px;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 25px;
+    background-color: white;
+    color: rgb(188, 131, 200);
+    margin-left: auto;
+    transition: all 0.3s ease;
+    justify-content: left;
+    
+
+}
+
+header nav a:hover {
+    background: linear-gradient(45deg, #285A9C, #1887C2);
+    color: white;
+    transform: scale(1.05);
+}

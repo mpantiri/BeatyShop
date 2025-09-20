@@ -1,0 +1,112 @@
+/* profile.css */
+
+/* Γενικό */
+body {
+    font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(120deg, #e3a5e8, #c483c8);
+    color: #333;
+}
+
+/* Header */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: rgba(188, 131, 200, 0.9);
+    padding: 15px 30px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    position: relative;
+}
+
+header h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px;
+    color: white;
+    margin: 0;
+}
+
+/* Nav */
+header nav {
+    display: flex;
+    gap: 10px;
+}
+
+/* Κουμπιά login, cart, home */
+.login-btn, .cart, .home-btn ,.logout{
+   display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 25px;
+    background-color: white;
+    color: rgb(188, 131, 200);
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover, 
+.cart:hover, 
+.home-btn:hover,
+.logout:hover
+{
+    background: linear-gradient(45deg, #285A9C, #1887C2);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Main content */
+main {
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+main h2 {
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* Στοιχεία χρήστη */
+#user-info ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+#user-info li {
+    font-size: 18px;
+    margin: 10px 0;
+}
+.logout{
+   
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    margin: 20px auto;  
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+   
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 25px;
+    background-color: white;
+    color: rgb(188, 131, 200);
+    transition: all 0.3s ease;
+
+
+}
+

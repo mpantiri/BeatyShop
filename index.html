@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyShop</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <h1>BeautyShop</h1>
+    <nav>
+        <a href="cart.html" class="cart">🛒 <span id="cart-count">0</span></a>
+        <a href="login.html" class="login-btn">👤</a>
+    </nav>
+</header>
+
+<main>
+    <section id="product-list" class="products"></section>
+</main>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabaseUrl = "https://rdlrcwbmitqeakmnhqfg.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkbHJjd2JtaXRxZWFrbW5ocWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMTc2MDcsImV4cCI6MjA3Mzg5MzYwN30.4n4f_fr-tBPNGmcqJ92w2OpdNEJtThOc1vMFGaRFzoc";
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+let allProducts = [];
+
+
+function getUserId() {
+    return parseInt(localStorage.getItem("userId")) || null;
+}
+
+
+async function updateCartCount() {
+    const userId = getUserId();
+    if (!userId) {
+        document.getElementById('cart-count').textContent = '0';
+        return;
+    }
+    const { data, error } = await supabase
+        .from('cart')
+        .select('quantity')
+        .eq('user_id', userId);
+    if (error) { console.error(error); return; }
+    const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cart-count').textContent = totalQuantity;
+}
+
+
+async function addToCart(productId) {
+    const userId = getUserId();
+    if (!userId) { 
+        alert("You have to log in first!"); 
+        return; 
+    }
+
+   
+    const product = allProducts.find(p => (p.id ? p.id.toString() : p.name.replace(/\s+/g, "_")) === productId);
+    if (!product) { 
+        alert("The product doesn't exist!"); 
+        return; 
+    }
+
+    const numericPrice = parseFloat(product.price);
+
+    
+    const { data: existingItem, error: fetchError } = await supabase
+        .from('cart')
+        .select('id, quantity')
+        .eq('user_id', userId)
+        .eq('product_id', productId)
+        .maybeSingle();
+
+    if (fetchError) { console.error(fetchError); return; }
+
+    if (existingItem) {
+        await supabase
+            .from('cart')
+            .update({ quantity: existingItem.quantity + 1 })
+            .eq('id', existingItem.id);
+    } else {
+        const { error } = await supabase
+            .from('cart')
+            .insert([{ user_id: userId, product_id: productId, price: numericPrice, quantity: 1 }]);
+        if (error) console.error(error);
+    }
+
+    updateCartCount();
+}
+
+
+window.addToCart = addToCart;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.querySelector(".login-btn");
+    const username = localStorage.getItem("username");
+    if (username) {
+        loginBtn.textContent = `👤 ${username}`;
+        loginBtn.href = "profile.html";
+    }
+
+    updateCartCount();
+    loadProducts();
+});
+</script>
+</body>
+</html>

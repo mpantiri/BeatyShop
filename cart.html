@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Το Καλάθι μου</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/cart.css">
+<style>
+    .quantity-controls button { margin: 0 5px; }
+    #total { font-weight: bold; margin-top: 20px; }
+</style>
+</head>
+<body>
+<header>
+    <h1>Το Καλάθι μου</h1>
+    <nav>
+        <a href="index.html">🏠</a>
+        <a href="login.html">👤</a>
+    </nav>
+</header>
+
+<main>
+    <div id="cart-items"></div>
+    <p id="total">Σύνολο: 0€</p>
+</main>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabaseUrl = "https://rdlrcwbmitqeakmnhqfg.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkbHJjd2JtaXRxZWFrbW5ocWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMTc2MDcsImV4cCI6MjA3Mzg5MzYwN30.4n4f_fr-tBPNGmcqJ92w2OpdNEJtThOc1vMFGaRFzoc";
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+const cartContainer = document.getElementById("cart-items");
+const totalEl = document.getElementById("total");
+
+function getUserId() {
+    return parseInt(localStorage.getItem("userId")) || null;
+}
+
+
+async function loadCart() {
+    const userId = getUserId();
+    if (!userId) {
+        cartContainer.innerHTML = "<p>Δεν είσαι συνδεδεμένος.</p>";
+        totalEl.textContent = "Σύνολο: 0€";
+        return;
+    }
+
+    const { data, error } = await supabase
+        .from('cart')
+        .select(`
+            id,
+            quantity,
+            product:product_id (
+                id,
+                name,
+                price,
+                image_url
+            )
+        `)
+        .eq('user_id', userId);
+
+    if (error) {
+        console.error(error);
+        cartContainer.innerHTML = "<p>Σφάλμα κατά τη φόρτωση του καλαθιού.</p>";
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        cartContainer.innerHTML = "<p>Το καλάθι σου είναι άδειο.</p>";
+        totalEl.textContent = "Σύνολο: 0€";
+        return;
+    }
+
+    cartContainer.innerHTML = data.map(item => `
+        <div class="cart-item">
+            <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-img">
+            <div>
+                <p>${item.product.name}</p>
+                <p>Τιμή: ${item.product.price}€</p>
+                <div class="quantity-controls">
+                    <button class="decrease" data-id="${item.id}">-</button>
+                    <span class="quantity">${item.quantity}</span>
+                    <button class="increase" data-id="${item.id}">+</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    updateTotalOnPage();
+}
+
+
+function updateTotalOnPage() {
+    const items = document.querySelectorAll('.cart-item');
+    let total = 0;
+    items.forEach(item => {
+        const price = parseFloat(item.querySelector('p:nth-child(2)').textContent.replace('Τιμή: ', '').replace('€',''));
+        const quantity = parseInt(item.querySelector('.quantity').textContent);
+        total += price * quantity;
+    });
+    totalEl.textContent = `Σύνολο: ${total.toFixed(2)}€`;
+}
+
+
+async function changeQuantity(cartId, newQuantity, quantitySpan) {
+    if (newQuantity < 1) {
+       
+        const { error } = await supabase
+            .from('cart')
+            .delete()
+            .eq('id', cartId);
+
+        if (error) {
+            console.error("Σφάλμα διαγραφής:", error);
+            alert("Σφάλμα κατά τη διαγραφή!");
+        } else {
+           
+            quantitySpan.closest('.cart-item').remove();
+            updateTotalOnPage();
+        }
+        return;
+    }
+
+    const { error } = await supabase
+        .from('cart')
+        .update({ quantity: newQuantity })
+        .eq('id', cartId);
+
+    if (error) {
+        console.error("Σφάλμα ενημέρωσης:", error);
+        alert("Σφάλμα κατά την ενημέρωση ποσότητας!");
+        return;
+    }
+
+    quantitySpan.textContent = newQuantity;
+    updateTotalOnPage();
+}
+
+
+
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('increase') || e.target.classList.contains('decrease')) {
+        const cartId = parseInt(e.target.dataset.id);
+        const quantitySpan = e.target.parentElement.querySelector('.quantity');
+        let currentQuantity = parseInt(quantitySpan.textContent);
+
+        if (e.target.classList.contains('increase')) {
+            changeQuantity(cartId, currentQuantity + 1, quantitySpan);
+        } else {
+            changeQuantity(cartId, currentQuantity - 1, quantitySpan);
+        }
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const loginBtn = document.querySelector("nav a[href='login.html']");
+    const username = localStorage.getItem("username");
+
+    if (username) {
+        loginBtn.href = "profile.html";
+        loginBtn.textContent = "👤 " + username;
+    } else {
+        loginBtn.href = "login.html";
+        loginBtn.textContent = "👤";
+    }
+});
+
+loadCart();
+</script>
+</body>
+</html>
