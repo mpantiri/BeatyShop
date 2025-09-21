@@ -13,6 +13,20 @@
         <a href="cart.html" class="cart">🛒 <span id="cart-count">0</span></a>
         <a href="login.html" class="login-btn">👤</a>
     </nav>
+        <div style="text-align: right;margin: 10px;">
+            <label for="sort">Sort</label>
+            <select id="sort" onchange="sortProducts()">
+                <option value="default">Default</option>
+                <option value="price-asc">Price ↑</option>
+                <option vaule="price-desc">Price ↓</option>
+                <option value="name-asc">Name A-Z</option>
+                <option value="name-desc">Name Z-A</option>
+            </select>
+        </div>
+
+
+
+
 </header>
 
 <main>
@@ -198,6 +212,28 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     loadProducts();
 });
+
+
+window.sortProducts = function () {
+    const sortValue = document.getElementById("sort").value;
+
+    if (sortValue === "price-asc") {
+        allProducts.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else if (sortValue === "price-desc") {
+        allProducts.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    } else if (sortValue === "name-asc") {
+        allProducts.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } else if (sortValue === "name-desc") {
+        allProducts.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+    } else {
+        loadProducts();
+        return;
+    }
+
+    currentPage = 1;
+    showPage(currentPage);
+    renderPaginationButtons();
+}
 
 
 </script>
